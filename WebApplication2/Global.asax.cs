@@ -12,12 +12,16 @@ namespace WebApplication2
     {
 
         protected static Controller _Controller;
-        public static Controller Controller { get => _Controller; set => _Controller = value; }
+        public static Controller Controller { get => _Controller; }
+
+        protected static PersonenTypListe _personenTypListe;
+        public static PersonenTypListe personenTypListe { get => _personenTypListe; }
 
         protected void Application_Start(object sender, EventArgs e)
         {
             Directory.SetCurrentDirectory(Properties.Settings.Default.CWD);
-            Controller = new Controller();
+            _Controller = new Controller();
+            _personenTypListe = new PersonenTypListe();
         }
 
         protected void Session_Start(object sender, EventArgs e)

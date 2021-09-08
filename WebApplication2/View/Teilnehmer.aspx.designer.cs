@@ -10,51 +10,60 @@
 namespace WebApplication2.View {
     
     
-    public partial class View2 {
+    public partial class Teilnehmer {
         
         /// <summary>
-        /// form1-Steuerelement
+        /// title-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+        protected global::System.Web.UI.WebControls.Label title;
         
         /// <summary>
-        /// LoginName-Steuerelement
+        /// dataList-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LoginName LoginName;
+        protected global::System.Web.UI.WebControls.BulletedList dataList;
         
         /// <summary>
-        /// LoginStatus-Steuerelement
+        /// TeilnehmerTypenList-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LoginStatus LoginStatus;
+        protected global::System.Web.UI.WebControls.CheckBoxList TeilnehmerTypenList;
         
         /// <summary>
-        /// Turnierverwaltung-Steuerelement
+        /// edit-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Turnierverwaltung;
+        protected global::System.Web.UI.WebControls.PlaceHolder edit;
         
         /// <summary>
-        /// Ranking-Steuerelement
+        /// EditBtn-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Ranking;
+        protected global::System.Web.UI.WebControls.Button EditBtn;
+        
+        /// <summary>
+        /// DeleteBtn-Steuerelement
+        /// </summary>
+        /// <remarks>
+        /// Automatisch generiertes Feld
+        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button DeleteBtn;
     }
 }

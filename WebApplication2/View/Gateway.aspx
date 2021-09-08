@@ -11,9 +11,18 @@
 <body>
     <form id="form1" runat="server">
         <div class="container">
-            <asp:Button runat="server" OnClick="Spielerverwaltung_Click" Text="Spielerverwaltung" />
+                    <div>
+            Welcome
+            <asp:LoginName ID="LoginName" runat="server" Font-Bold="true" />
+          
+            <br />
+            <asp:LoginStatus ID="LoginStatus" runat="server" />
+        </div>
+
+            <asp:Button runat="server" OnClick="Spielerverwaltung_Click" Text="Teilnehmerverwaltung" />
             <asp:Button runat="server" OnClick="Mannschaftsverwaltung_Click" Text="Mannschaftsverwaltung" />
             <asp:Button runat="server" OnClick="Turnierverwaltung_Click" ID="Turnierverwaltung" Text="Turnierverwaltung" />
+            <asp:Button runat="server" OnClick="Ranking_Click" ID="Ranking" Text="Ranking" />
         </div>
     </form>
 

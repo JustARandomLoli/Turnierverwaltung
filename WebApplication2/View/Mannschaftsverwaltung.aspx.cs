@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data.SQLite;
+using System.Web.Security;
 
 namespace WebApplication2.View
 {
@@ -15,6 +16,11 @@ namespace WebApplication2.View
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!this.Page.User.Identity.IsAuthenticated)
+            {
+                FormsAuthentication.RedirectToLoginPage();
+            }
+
             controller = Global.Controller;
 
             if(!IsPostBack)
@@ -30,8 +36,8 @@ namespace WebApplication2.View
             controller.MannschaftFromDb();
             listMannschaften.Items.Clear();
             listTeilnehmer.Items.Clear();
-            foreach (Mannschaft m in controller.GetMannschaften()) listMannschaften.Items.Add(new ListItem(m.Name, m.GetHashCode().ToString()));
-            foreach (Person p in controller.GetPeople()) listTeilnehmer.Items.Add(new ListItem(p.Name, p.GetHashCode().ToString()));
+            foreach (Mannschaft m in controller.GetMannschaften(Nutzer.GetNutzer(this.Page.User.Identity.Name))) listMannschaften.Items.Add(new ListItem(m.Name, m.GetHashCode().ToString()));
+            foreach (Person p in controller.GetPeople(Nutzer.GetNutzer(this.Page.User.Identity.Name))) listTeilnehmer.Items.Add(new ListItem(p.Name, p.GetHashCode().ToString()));
         }
 
         protected void btnOk_Click(object sender, EventArgs e)
@@ -57,11 +63,11 @@ namespace WebApplication2.View
 
         protected void Button1_Click(object sender, EventArgs e)
         {
-            Mannschaft m = new Mannschaft(-1, txtName.Text);
+            Mannschaft m = new Mannschaft(-1, txtName.Text, Nutzer.GetNutzer(this.Page.User.Identity.Name).GroupID);
             m.InsertIntoDb(controller);
             Response.Redirect(Request.RawUrl);
         }
-
+        
         protected void Back_Click(object sender, EventArgs e)
         {
             Response.Redirect("/View/Gateway.aspx");
@@ -74,8 +80,22 @@ namespace WebApplication2.View
 
         public void UpdatePeopleList()
         {
-            foreach (TableRow row in tableListe.Rows) if (!(row is TableHeaderRow)) tableListe.Rows.Remove(row);
-            foreach (Person spieler in controller.GetMannschaft(listMannschaften.SelectedValue).Teilnehmer) tableListe.Rows.Add(spieler.GetTableRow());
+            if(listMannschaften.SelectedValue != "")
+            {
+                Mannschaft m = controller.GetMannschaft(listMannschaften.SelectedValue);
+                foreach (TableRow row in tableListe.Rows) if (!(row is TableHeaderRow)) tableListe.Rows.Remove(row);
+                foreach (Person spieler in m)
+                {
+                    Button b = new Button();
+                    b.Text = "Remove";
+                    b.ID = listMannschaften.SelectedValue + "_" + spieler.SID;
+                    b.Click += new EventHandler((object sender, EventArgs args) => {
+                        m.Remove(spieler);
+                    });
+                    tableListe.Rows.Add(spieler.GetTableRow(b));
+                }
+
+            }
         }
 
         

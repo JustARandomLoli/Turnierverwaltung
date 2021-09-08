@@ -10,7 +10,7 @@
 namespace WebApplication2.View {
     
     
-    public partial class View2 {
+    public partial class Ranking {
         
         /// <summary>
         /// form1-Steuerelement
@@ -22,39 +22,21 @@ namespace WebApplication2.View {
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
         
         /// <summary>
-        /// LoginName-Steuerelement
+        /// tableListe-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LoginName LoginName;
+        protected global::System.Web.UI.WebControls.Table tableListe;
         
         /// <summary>
-        /// LoginStatus-Steuerelement
+        /// headerRow-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LoginStatus LoginStatus;
-        
-        /// <summary>
-        /// Turnierverwaltung-Steuerelement
-        /// </summary>
-        /// <remarks>
-        /// Automatisch generiertes Feld
-        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Turnierverwaltung;
-        
-        /// <summary>
-        /// Ranking-Steuerelement
-        /// </summary>
-        /// <remarks>
-        /// Automatisch generiertes Feld
-        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Ranking;
+        protected global::System.Web.UI.WebControls.TableHeaderRow headerRow;
     }
 }

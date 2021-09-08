@@ -14,15 +14,22 @@ namespace WebApplication2
 
         private List<Person> People;
         private List<Mannschaft> Mannschaften;
+        private List<Spiel> Spiele;
+        private List<Turnier> Turniere;
 
         public Controller()
         {
             People = new List<Person>();
             Mannschaften = new List<Mannschaft>();
+            Spiele = new List<Spiel>();
+            Turniere = new List<Turnier>();
             conn = new SQLiteConnection(@"Data Source=test.db;Version=3;", true);
             conn.Open();
 
             initDatabase();
+            new Nutzer(0, false, "erik").AddPermissions("view_people").AddPermissions("view_turniere").AddPermissions("view_spiele").AddPermissions("view_mannschaften");
+            new Nutzer(1, false, "elefant").AddPermissions("view_people").AddPermissions("view_turniere").AddPermissions("view_spiele").AddPermissions("view_mannschaften");
+            new Nutzer(2, false, "admin").AddPermissions("* view_people").AddPermissions("* view_turniere").AddPermissions("* view_spiele").AddPermissions("* view_mannschaften");
         }
 
         public object Run(SQLiteCommand cmd)
@@ -40,16 +47,15 @@ namespace WebApplication2
         {
             Run(new SQLiteCommand(@"CREATE TABLE IF NOT EXISTS people (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                deleted INTEGER DEFAULT 0,
+                user INTEGER,
                 nachname VARCHAR(64) NOT NULL,
-                vorname VARCHAR(64) NOT NULL,
-                fussballspieler BOOLEAN DEFAULT 0,
-                fussballspieler_tore INTEGER UNSIGNED DEFAULT 0,
-                volleyballspieler BOOLEAN DEFAULT 0,
-                volleyballspieler_punkte INTEGER UNSIGNED DEFAULT 0
-            );"));
+                vorname VARCHAR(64) NOT NULL "
+                + new PersonenTypListe().GenerateCreateStatement() + ");"));
 
             Run(new SQLiteCommand(@"CREATE TABLE IF NOT EXISTS mannschaften (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user INTEGER,
                 name VARCHAR(64) NOT NULL
             );"));
 
@@ -58,6 +64,25 @@ namespace WebApplication2
                 mannschaft INTEGER,
 
                 UNIQUE(person, mannschaft)
+            );"));
+
+            Run(new SQLiteCommand(@"CREATE TABLE IF NOT EXISTS spiele (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user INTEGER,
+                mannschaft1 INTEGER,
+                mannschaft2 INTEGER,
+                punktestand1 INTEGER,
+                punktestand2 INTEGER,
+                spielart VARCHAR(64),
+
+                turnier INTEGER DEFAULT NULL
+            );"));
+
+            Run(new SQLiteCommand(@"CREATE TABLE IF NOT EXISTS turniere (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user INTEGER,
+                name VARCHAR(64),
+                spielart VARCHAR(64)
             );"));
 
         }
@@ -70,20 +95,60 @@ namespace WebApplication2
         public void PeopleFromDb()
         {
             People.Clear();
-            SQLiteCommand cmd = new SQLiteCommand(@"SELECT * FROM people");
+            SQLiteCommand cmd = new SQLiteCommand(@"SELECT * FROM people WHERE deleted = 0");
             SQLiteDataReader reader;
             cmd.Connection = conn;
             reader = cmd.ExecuteReader();
             while(reader.Read())
             {
-                Boolean istFussballer = reader.GetBoolean(3);
-                Boolean istVolleyballspieler = reader.GetBoolean(5);
 
-                Person p = new Person((Int32)reader.GetInt64(0), reader.GetString(1), reader.GetString(2));
-                if (istFussballer) p.Fussballspieler((UInt32)reader.GetInt32(4));
-                if (istVolleyballspieler) p.Volleyballspieler((UInt32)reader.GetInt32(6));
+                Person p = new Person((Int32)reader.GetInt64(0), reader.GetString(3), reader.GetString(4), reader.GetInt32(2));
+                foreach(PersonenTyp typ in p.Typen.GetTypen()) typ.ParseReader(p, reader);
 
                 People.Add(p);
+            }
+            cmd.Dispose();
+            reader.Dispose();
+        }
+
+        public void SpieleFromDb()
+        {
+            PeopleFromDb();
+            MannschaftFromDb();
+
+            Spiele.Clear();
+            Turniere.Clear();
+
+            SQLiteCommand cmd = new SQLiteCommand(@"SELECT * FROM turniere");
+            SQLiteDataReader reader;
+            cmd.Connection = conn;
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                List<Spiel> spiels = new List<Spiel>();
+
+                SQLiteCommand cmd2 = new SQLiteCommand(@"SELECT * FROM spiele WHERE turnier = @turnier");
+                SQLiteDataReader reader2;
+                cmd2.Connection = conn;
+                cmd2.Parameters.AddWithValue("@turnier", reader.GetInt32(0));
+                reader2 = cmd2.ExecuteReader();
+                while (reader2.Read())
+                {
+
+                    Spiel p = new Spiel((Int32)reader2.GetInt64(0), GetMannschaft((Int32)reader2.GetInt64(2)), GetMannschaft((Int32)reader2.GetInt64(3)), reader2.GetString(6), (Int32)reader2.GetInt64(1));
+                    p.Punktestand[0] = (Int32)reader2.GetInt64(3);
+                    p.Punktestand[1] = (Int32)reader2.GetInt64(4);
+
+                    Spiele.Add(p);
+                    spiels.Add(p);
+                }
+                cmd2.Dispose();
+                reader2.Dispose();
+
+                Turnier t = new Turnier(reader.GetInt32(0), reader.GetString(2), reader.GetString(3), spiels, reader.GetInt32(1));
+                Turniere.Add(t);
+                foreach (Spiel s in spiels) s.Turnier = t;
+
             }
             cmd.Dispose();
             reader.Dispose();
@@ -98,7 +163,7 @@ namespace WebApplication2
             reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                Mannschaft m = new Mannschaft((Int32)reader.GetInt64(0), reader.GetString(1));
+                Mannschaft m = new Mannschaft((Int32)reader.GetInt64(0), reader.GetString(2), (Int32)reader.GetInt64(1));
 
                 Mannschaften.Add(m);
             }
@@ -130,14 +195,32 @@ namespace WebApplication2
 
         }
 
-        public List<Person> GetPeople()
+        public List<Person> GetPeople(Nutzer nutzer)
         {
-            return People;
+            return People.FindAll(delegate(Person p) {
+                return nutzer == null ? true : nutzer.HasPermission(p.PID.ToString() + " view_people");
+            });
         }
 
-        public List<Mannschaft> GetMannschaften()
+        public List<Spiel> GetSpiele(Nutzer nutzer)
         {
-            return Mannschaften;
+            return Spiele.FindAll(delegate (Spiel s) {
+                return nutzer == null ? true : nutzer.HasPermission(s.PID.ToString() + " view_spiele");
+            });
+        }
+
+        public List<Turnier> GetTurniere(Nutzer nutzer)
+        {
+            return Turniere.FindAll(delegate (Turnier s) {
+                return nutzer == null ? true : nutzer.HasPermission(s.PID.ToString() + " view_turniere");
+            });
+        }
+
+        public List<Mannschaft> GetMannschaften(Nutzer nutzer)
+        {
+            return Mannschaften.FindAll(delegate (Mannschaft s) {
+                return nutzer == null ? true : nutzer.HasPermission(s.PID.ToString() + " view_mannschaften");
+            });
         }
 
         public Mannschaft GetMannschaft(int sid)
@@ -161,6 +244,18 @@ namespace WebApplication2
         public Person GetPerson(string sid)
         {
             foreach (Person p in People) if (p.SID.ToString() == sid) return p;
+            return null;
+        }
+
+        public Turnier GetTurnier(string sid)
+        {
+            foreach (Turnier t in Turniere) if (t.SID.ToString() == sid) return t;
+            return null;
+        }
+
+        public Turnier GetTurnier(int sid)
+        {
+            foreach (Turnier t in Turniere) if (t.SID == sid) return t;
             return null;
         }
 

@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="CWD" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">T:\</Value>
+      <Value Profile="(Default)">C:\xampp\tmp\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

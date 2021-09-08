@@ -22,22 +22,13 @@ namespace WebApplication2.View {
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
         
         /// <summary>
-        /// typeFootball-Steuerelement
+        /// TeilnehmerTypenList-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox typeFootball;
-        
-        /// <summary>
-        /// typeVolleyball-Steuerelement
-        /// </summary>
-        /// <remarks>
-        /// Automatisch generiertes Feld
-        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox typeVolleyball;
+        protected global::System.Web.UI.WebControls.CheckBoxList TeilnehmerTypenList;
         
         /// <summary>
         /// txtNachname-Steuerelement
@@ -58,22 +49,13 @@ namespace WebApplication2.View {
         protected global::System.Web.UI.WebControls.TextBox txtVorname;
         
         /// <summary>
-        /// numTore-Steuerelement
+        /// placeholderEigenschaften-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox numTore;
-        
-        /// <summary>
-        /// numPunkte-Steuerelement
-        /// </summary>
-        /// <remarks>
-        /// Automatisch generiertes Feld
-        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox numPunkte;
+        protected global::System.Web.UI.WebControls.PlaceHolder placeholderEigenschaften;
         
         /// <summary>
         /// btnOk-Steuerelement

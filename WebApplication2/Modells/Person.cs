@@ -9,55 +9,94 @@ namespace WebApplication2
 {
     public class Person
     {
-        protected Boolean _IstFussballspieler;
-        protected Boolean _IstVolleyballspieler;
 
-        private Int32 _SID;
+        private Int32 ?_SID;
         private String _Nachname;
         private String _Vorname;
-        private UInt32 _Tore;
-        private UInt32 _Punkte;
+        private PersonenTypListe _Typen;
 
-        public UInt32 Tore { get => _Tore; }
-        public UInt32 Punkte { get => _Punkte; }
-        public Boolean IstFussballspieler { get => _IstFussballspieler; }
-        public Boolean IstVolleyballspieler { get => _IstVolleyballspieler; }
-        public Int32 SID { get => _SID; }
+        public PersonenTypListe Typen { get => _Typen; }
+        public Int32 ?SID { get => _SID; }
         public String Nachname { get => _Nachname; }
         public String Vorname { get => _Vorname; }
-        public String Name { get => _Vorname + " " + _Nachname; }
+        public String Name { get => Vorname + " " + Nachname; }
+        public Int32 ?PID { get; protected set; }
 
-        public Person(int sid, string nachname, string vorname)
+        public Person(int ?sid, string nachname, string vorname, int ?pid)
         {
             this._SID = sid;
             this._Nachname = nachname;
             this._Vorname = vorname;
-            this._IstFussballspieler = false;
-            this._IstVolleyballspieler = false;
+            this.PID = pid;
+
+            this._Typen = new PersonenTypListe();
         }
 
-        public void Fussballspieler(uint tore)
+        public void MarkAsDeleted()
         {
-            this._IstFussballspieler = true;
-            this._Tore = tore;
+            SQLiteCommand cmd = new SQLiteCommand(@"UPDATE people SET deleted = 1 WHERE id = @id;");
+
+            if (_SID != null) cmd.Parameters.AddWithValue("@id", SID);
+           
+            
+            object result = Global.Controller.Run(cmd);
+            if (result as DBNull != null)
+            {
+                this._SID = (Int32)result;
+            }
+
+            cmd.Dispose();
         }
 
-        public void Volleyballspieler(uint punkte)
+        public void Delete()
         {
-            this._IstVolleyballspieler = true;
-            this._Punkte = punkte;
+            SQLiteCommand cmd = new SQLiteCommand(@"DELETE FROM people WHERE id = @id;");
+
+            if (_SID != null) cmd.Parameters.AddWithValue("@id", SID);
+
+
+            object result = Global.Controller.Run(cmd);
+            if (result as DBNull != null)
+            {
+                this._SID = (Int32)result;
+            }
+
+            cmd.Dispose();
         }
 
 
         public void InsertIntoDb(Controller controller)
         {
-            SQLiteCommand cmd = new SQLiteCommand(@"INSERT INTO people (nachname, vorname, fussballspieler, fussballspieler_tore, volleyballspieler, volleyballspieler_punkte) values (@nachname, @vorname, @fussballspieler, @tore, @volleyballspieler, @punkte)");
+            String fields = "";
+            String values = "";
+            String update = "";
+            foreach (PersonenTyp typ in Typen.GetTypen()) {
+
+                fields += ", " + typ.PREFIX;
+                values += ", @" + typ.PREFIX;
+                update += ", " + typ.PREFIX + " = @" + typ.PREFIX;
+      
+                foreach (KeyValuePair<String, KeyValuePair<String, object>> pair in typ.Eigenschaften)
+                {
+                    fields += ", " + typ.PREFIX + "_" + pair.Key.ToLower();
+                    values += ", @" + typ.PREFIX + "_" + pair.Key.ToLower();
+                    update += ", " + typ.PREFIX + "_" + pair.Key.ToLower() + " = @" + typ.PREFIX + "_" + pair.Key.ToLower();
+                }
+            }
+
+            SQLiteCommand cmd;
+            if(_SID == null) cmd = new SQLiteCommand(@"INSERT INTO people (nachname, vorname, user" + fields + ") values (@nachname, @vorname, @user" + values + ");");
+            else cmd = new SQLiteCommand(@"UPDATE people SET nachname = @nachname, vorname = @vorname" + update + " WHERE id = @id;");
+
+            if(_SID != null) cmd.Parameters.AddWithValue("@id", SID);
+
             cmd.Parameters.AddWithValue("@nachname", Nachname);
             cmd.Parameters.AddWithValue("@vorname", Vorname);
-            cmd.Parameters.AddWithValue("@fussballspieler", (IstFussballspieler ? 1 : 0));
-            cmd.Parameters.AddWithValue("@tore", Tore);
-            cmd.Parameters.AddWithValue("@volleyballspieler", (IstVolleyballspieler ? 1 : 0));
-            cmd.Parameters.AddWithValue("@punkte", Punkte);
+            cmd.Parameters.AddWithValue("@user", PID);
+
+            foreach (PersonenTyp typ in Typen.GetTypen()) {
+                typ.PrepareStatement(cmd);
+            }
 
             object result = controller.Run(cmd);
             if (result as DBNull != null)
@@ -77,19 +116,36 @@ namespace WebApplication2
 
         public TableRow GetTableRow()
         {
+            return GetTableRow(new TableCell[0]);
+        }
+
+        public TableRow GetTableRow(WebControl control)
+        {
+            TableCell c = new TableCell();
+            c.Controls.Add(control);
+            return GetTableRow(new TableCell[] { c });
+        }
+
+        public TableRow GetTableRow(TableCell[] extraCells)
+        {
             TableRow row = new TableRow();
 
+            string t = "";
+            foreach (PersonenTyp typ in Typen.GetTypen()) if (typ.Exists()) t += ", " + typ.SHORT;
+            if (t.StartsWith(", ")) t = t.Substring(2);
 
-            int t = 0;
-            if (IstFussballspieler) t += 1;
-            if (IstVolleyballspieler) t += 2;
+            TableCell tCell = new TableCell();
+            tCell.Controls.Add(new HyperLink { Text = SID.ToString(), NavigateUrl = "javascript:OpenModal("+SID+");",  });
 
-            row.Cells.Add(CreateCell(t));
-            row.Cells.Add(CreateCell(SID));
+            row.Cells.Add(tCell);
             row.Cells.Add(CreateCell(Nachname));
             row.Cells.Add(CreateCell(Vorname));
-            row.Cells.Add(CreateCell(IstFussballspieler ? (object)Tore : null));
-            row.Cells.Add(CreateCell(IstVolleyballspieler ? (object)Punkte : null));
+
+            foreach (TableCell cell in extraCells) row.Cells.Add(cell);
+
+            /*foreach (PersonenTyp typ in Typen.GetTypen()) {
+                typ.AddToTable(row.Cells);
+            }*/
 
             return row;
         }
@@ -114,7 +170,7 @@ namespace WebApplication2
 
         public override int GetHashCode()
         {
-            return SID;
+            return SID == null ? -1 : (int)SID;
         }
 
 

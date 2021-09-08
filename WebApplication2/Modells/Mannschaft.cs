@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Data.SQLite;
+using System.Collections;
 
 namespace WebApplication2
 {
-    public class Mannschaft
+    public class Mannschaft : ICollection<Person>
     {
 
         private Int32 _SID;
@@ -16,12 +17,20 @@ namespace WebApplication2
         public Int32 SID { get => _SID; }
         public String Name { get => _Name; }
         public Person[] Teilnehmer { get => _Teilnehmer.ToArray(); }
+        public Int32 ?PID { get; protected set; }
 
-        public Mannschaft(int sid, string name)
+        #region Collection
+        public int Count => _Teilnehmer.Count;
+
+        public bool IsReadOnly => ((ICollection<Person>)_Teilnehmer).IsReadOnly;
+        #endregion
+
+        public Mannschaft(int sid, string name, int ?pid)
         {
             this._SID = sid;
             this._Name = name;
             this._Teilnehmer = new List<Person>();
+            this.PID = pid;
         }
 
         public void TeilnehmerHinzufuegen(Person person)
@@ -29,15 +38,22 @@ namespace WebApplication2
             _Teilnehmer.Add(person);
         }
 
-        public void TeilnehmerEntfernen(Person person)
+        public bool TeilnehmerEntfernen(Person person)
         {
-            _Teilnehmer.Remove(person);
+            SQLiteCommand cmd = new SQLiteCommand(@"DELETE FROM mannschaften_people WHERE person = @person AND mannschaft = @mannschaft)");
+            cmd.Parameters.AddWithValue("@person", person.SID);
+            cmd.Parameters.AddWithValue("@mannschaft", SID);
+
+            Global.Controller.Run(cmd);
+
+            return _Teilnehmer.Remove(person);
         }
 
         public void InsertIntoDb(Controller controller)
         {
-            SQLiteCommand cmd = new SQLiteCommand(@"INSERT INTO mannschaften (name) values (@name)");
+            SQLiteCommand cmd = new SQLiteCommand(@"INSERT INTO mannschaften (name, user) values (@name, @user)");
             cmd.Parameters.AddWithValue("@name", Name);
+            cmd.Parameters.AddWithValue("@user", PID);
 
             object result = controller.Run(cmd);
             if (result as DBNull != null)
@@ -46,6 +62,11 @@ namespace WebApplication2
             }
 
             cmd.Dispose();
+        }
+
+        public override String ToString()
+        {
+            return Name;
         }
 
         // override object.Equals
@@ -70,6 +91,45 @@ namespace WebApplication2
         {
             return SID;
         }
+
+        #region Collection
+
+        public void Add(Person item)
+        {
+            TeilnehmerHinzufuegen(item);
+        }
+
+        public void Clear()
+        {
+            ((ICollection<Person>)_Teilnehmer).Clear();
+        }
+
+        public bool Contains(Person item)
+        {
+            return ((ICollection<Person>)_Teilnehmer).Contains(item);
+        }
+
+        public void CopyTo(Person[] array, int arrayIndex)
+        {
+            ((ICollection<Person>)_Teilnehmer).CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(Person item)
+        {
+            return TeilnehmerEntfernen(item);
+        }
+
+        public IEnumerator<Person> GetEnumerator()
+        {
+            return ((ICollection<Person>)_Teilnehmer).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((ICollection<Person>)_Teilnehmer).GetEnumerator();
+        }
+
+        #endregion
 
     }
 }

@@ -25,7 +25,7 @@ namespace WebApplication2.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("T:\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\xampp\\tmp\\")]
         public string CWD {
             get {
                 return ((string)(this["CWD"]));

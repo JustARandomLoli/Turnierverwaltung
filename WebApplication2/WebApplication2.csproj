@@ -128,9 +128,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <None Include="Scripts\jquery-1.4.4-vsdoc.js" />
+    <Content Include="Scripts\jquery-1.4.4.js" />
+    <Content Include="Scripts\jquery-1.4.4.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="View\LoginForm.aspx" />
     <Content Include="View\Mannschaftsverwaltung.aspx" />
+    <Content Include="View\Ranking.aspx" />
     <Content Include="View\Spielerverwaltung.aspx" />
     <Content Include="View\Gateway.aspx" />
+    <Content Include="View\Teilnehmer.aspx" />
     <Content Include="View\Turnierverwaltung.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -139,15 +148,30 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Modells\Nutzer.cs" />
+    <Compile Include="Modells\Teilnehmer\Physiotherapeut.cs" />
+    <Compile Include="Modells\Teilnehmer\Trainer.cs" />
+    <Compile Include="Modells\Teilnehmer\Handballspieler.cs" />
     <Compile Include="Modells\Mannschaft.cs" />
     <Compile Include="Modells\Person.cs" />
+    <Compile Include="Modells\Teilnehmer\PersonenTyp.cs" />
+    <Compile Include="Modells\PersonenTypListe.cs" />
     <Compile Include="Modells\Spiel.cs" />
     <Compile Include="Modells\Turnier.cs" />
+    <Compile Include="Modells\Teilnehmer\Fussballspieler.cs" />
+    <Compile Include="Modells\Teilnehmer\Volleyballspieler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="View\LoginForm.aspx.cs">
+      <DependentUpon>LoginForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="View\LoginForm.aspx.designer.cs">
+      <DependentUpon>LoginForm.aspx</DependentUpon>
     </Compile>
     <Compile Include="View\Mannschaftsverwaltung.aspx.cs">
       <DependentUpon>Mannschaftsverwaltung.aspx</DependentUpon>
@@ -155,6 +179,13 @@
     </Compile>
     <Compile Include="View\Mannschaftsverwaltung.aspx.designer.cs">
       <DependentUpon>Mannschaftsverwaltung.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="View\Ranking.aspx.cs">
+      <DependentUpon>Ranking.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="View\Ranking.aspx.designer.cs">
+      <DependentUpon>Ranking.aspx</DependentUpon>
     </Compile>
     <Compile Include="View\Spielerverwaltung.aspx.cs">
       <DependentUpon>Spielerverwaltung.aspx</DependentUpon>
@@ -169,6 +200,13 @@
     </Compile>
     <Compile Include="View\Gateway.aspx.designer.cs">
       <DependentUpon>Gateway.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="View\Teilnehmer.aspx.cs">
+      <DependentUpon>Teilnehmer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="View\Teilnehmer.aspx.designer.cs">
+      <DependentUpon>Teilnehmer.aspx</DependentUpon>
     </Compile>
     <Compile Include="View\Turnierverwaltung.aspx.cs">
       <DependentUpon>Turnierverwaltung.aspx</DependentUpon>
